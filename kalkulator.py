@@ -28,26 +28,9 @@ class Kalkulator:
 
             if inp != "A":
                 if inp == "N":
-                    self._tom_kalkulator()
-                    samling = self._samlinger[0]
-                    self._tall = self.nytt_tall()
-                    if self._tall.hent_base() == 10:
-                        samling.legg_til_tall("Base 10", self._tall)
-                    else:
-                        samling.legg_til_tall(f"Base {self._tall.hent_base()}", self._tall)
-                    samling.legg_til_tall("Base 10", Tall(self.konverter_til_decimaltall(), 10))
-                    samling.legg_til_tall("Base 2", Tall(self.konverter_fra_decimaltall(2), 2))
+                    self._nytt_tall(inp, samling)
                 elif inp == "K":
-                    base = ""
-                    baseGyldig = False
-                    while not baseGyldig:
-                        base = input("Base:\n")
-                        if base != "" and base.isdigit():
-                            baseGyldig = True
-                        else:
-                            print("Ugyldig input")
-                    base = int(base)
-                    samling.legg_til_tall(f"Base {base}", Tall(self.konverter_fra_decimaltall(base), base))
+                    self._konverter_tall(samling)
                 else:
                     print("Ugyldig kommando.")
                     continue
@@ -56,6 +39,29 @@ class Kalkulator:
                 self.print_info()
             else:
                 print("¨\_(´-- ` )_/¨")
+
+    def _nytt_tall(self, inp, samling):
+        self._tom_kalkulator()
+        samling = self._samlinger[0]
+        self._tall = self.nytt_tall()
+        if self._tall.hent_base() == 10:
+            samling.legg_til_tall("Base 10", self._tall)
+        else:
+            samling.legg_til_tall(f"Base {self._tall.hent_base()}", self._tall)
+        samling.legg_til_tall("Base 10", Tall(self.konverter_til_decimaltall(), 10))
+        samling.legg_til_tall("Base 2", Tall(self.konverter_fra_decimaltall(2), 2))
+
+    def _konverter_tall(self, samling):
+        base = ""
+        baseGyldig = False
+        while not baseGyldig:
+            base = input("Base:\n")
+            if base != "" and base.isdigit():
+                baseGyldig = True
+            else:
+                print("Ugyldig input")
+        base = int(base)
+        samling.legg_til_tall(f"Base {base}", Tall(self.konverter_fra_decimaltall(base), base))
 
     def _tom_kalkulator(self):
         self._samlinger = [Samling()]
@@ -84,24 +90,6 @@ class Kalkulator:
             streng += f"{nokkel}: {self._samlinger[0].hent_tall(nokkel)}\n"
         streng += "Info ferdig\n"
 
-        """
-        if self._tall.hent_base() == 2:
-            streng += f"Decimaltall: {self._decimaltall}\n"
-            if self._binaertall.hent_tall()[0] == "1":
-                pass
-            if self._tall.er_negativt():
-                streng += f"2er-komplement: {self.toer_komplement()}\n"
-            streng += f"Binærtall: {self._binaertall}\n"
-            for tall in self._andreBaser:
-                streng += f"Base {tall.hent_base()}: {tall}\n"
-
-        streng += f"Decimaltall: {self._decimaltall}\n"
-        if self._tall.er_negativt():
-            streng += f"2er-komplement: {self.toer_komplement()}\n"
-        streng += f"Binærtall: {self._binaertall}\n"
-        for tall in self._andreBaser:
-            streng += f"Base {tall.hent_base()}: {tall}\n"
-        """
         print(streng)
 
     def nytt_tall(self):
