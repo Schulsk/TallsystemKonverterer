@@ -28,8 +28,10 @@ class Kalkulator:
 
             if inp != "A":
                 if inp == "N":
+                    # Legg til nytt tall
                     self._nytt_tall(inp, samling)
                 elif inp == "K":
+                    # Konverter tall
                     self._konverter_tall(samling)
                 else:
                     print("Ugyldig kommando.")
