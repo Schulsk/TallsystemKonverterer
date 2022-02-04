@@ -29,7 +29,7 @@ class Kalkulator:
             if inp != "A":
                 if inp == "N":
                     # Legg til nytt tall
-                    self._nytt_tall(inp, samling)
+                    self._nytt_tall(inp)
                 elif inp == "K":
                     # Konverter tall
                     self._konverter_tall(samling)
@@ -42,16 +42,26 @@ class Kalkulator:
             else:
                 print("¨\_(´-- ` )_/¨")
 
-    def _nytt_tall(self, inp, samling):
+    def _nytt_tall(self, inp):
         self._tom_kalkulator()
         samling = self._samlinger[0]
         self._tall = self.nytt_tall()
-        if self._tall.hent_base() == 10:
+
+        base = self._tall.hent_base()
+        if base == 10:
             samling.legg_til_tall("Base 10", self._tall)
         else:
             samling.legg_til_tall(f"Base {self._tall.hent_base()}", self._tall)
-        samling.legg_til_tall("Base 10", Tall(self.konverter_til_decimaltall(), 10))
-        samling.legg_til_tall("Base 2", Tall(self.konverter_fra_decimaltall(2), 2))
+        for tall in samling.hent_alle_tall():
+            print(tall)
+        samling.legg_til_tall("Base 10", Tall(self.konverter_til_decimaltall(), 10, self._tall.er_negativt()))
+        samling.legg_til_tall("Base 2", Tall(self.konverter_fra_decimaltall(2), 2, self._tall.er_negativt()))
+
+        if base == 2 and self._tall.hent_tall()[0] == 1:
+            print("Tallet kan være både negativt og positivt.")
+
+    def _kan_vaere_toerkomplement(self):
+        pass
 
     def _konverter_tall(self, samling):
         base = ""
@@ -63,7 +73,7 @@ class Kalkulator:
             else:
                 print("Ugyldig input")
         base = int(base)
-        samling.legg_til_tall(f"Base {base}", Tall(self.konverter_fra_decimaltall(base), base))
+        samling.legg_til_tall(f"Base {base}", Tall(self.konverter_fra_decimaltall(base), base, self._tall.er_negativt()))
 
     def _tom_kalkulator(self):
         self._samlinger = [Samling()]
@@ -81,11 +91,14 @@ class Kalkulator:
         print()
 
     def print_info(self):
-        streng = f"Tall: {self._tall}\n"
-        streng += f"Base: {self._tall.hent_base()}\n"
-        streng += "\n"
+        if len(self._samlinger) == 1:
+            streng = f"Tall: {self._tall}\n"
+            streng += f"Base: {self._tall.hent_base()}\n"
+            streng += "\n"
+        else:
+            print("Denne funksjonen i kalkulator.print_info() har ikke blitt implementert.")
 
-
+        # Print alle basene i tillegg til den som ble skrevet inn
         nokler = self._samlinger[0].hent_alle_nokler()
         tall = self._samlinger[0].hent_alle_tall()
         for nokkel in nokler:
@@ -155,12 +168,10 @@ class Kalkulator:
         # Sørg for at vi leverer 2er-komplementen av binærtallet
         # om originaltallet er negativt
         if self._tall.er_negativt():
-            print("nyttTall:", nyttTall)
             if tilBase == 2:
                 nyttTall = self.toer_komplement(nyttTall)
                 print("toer-komplement:", nyttTall)
 
-        print("nyttTall:", nyttTall)
         return str(nyttTall)
 
     def verdier_til_siffere(self, verdier):

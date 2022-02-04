@@ -1,26 +1,36 @@
 
 
 class Tall:
-    def __init__(self, tall, base=None):
+    def __init__(self, tall, base=None, negativ=None):
         self._tall = tall
         self._base = base
-        self._negativ = self._sjekk_om_negativ()
+        if negativ == None:
+            self._negativ = self._sjekk_om_negativ()
+        else:
+            self._negativ = negativ
         self._verdier = self.siffere_til_verdier()
 
     def __str__(self):
         if self._negativ:
             if self._base != 2:
                 streng = f"-{self._tall}"
+            else:
+                streng = f"{self._tall}"
         else:
             streng = f"{self._tall}"
         return streng
 
     def _sjekk_om_negativ(self):
-        print("Tall:", self._tall)
-        print("Base:", self._base)
         if self._tall[0] == "-":
             self._tall = self._tall.strip("-")
             return True
+        elif len(self._tall) % 8 == 0:
+            print("Tallet har 8 siffer")
+            print(len(self._tall))
+            if self._base == 2:
+                if self._tall[0] == "1":
+                    print("Tallet kan være både positivt og negativt.")
+
         return False
 
     def er_negativt(self):
