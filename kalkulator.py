@@ -32,7 +32,7 @@ class Kalkulator:
                     self._nytt_tall(inp)
                 elif inp == "K":
                     # Konverter tall
-                    self._konverter_tall(samling)
+                    self._konverter_tall()
                 else:
                     print("Ugyldig kommando.")
                     continue
@@ -52,18 +52,36 @@ class Kalkulator:
             samling.legg_til_tall("Base 10", self._tall)
         else:
             samling.legg_til_tall(f"Base {self._tall.hent_base()}", self._tall)
-        for tall in samling.hent_alle_tall():
-            print(tall)
+
         samling.legg_til_tall("Base 10", Tall(self.konverter_til_decimaltall(), 10, self._tall.er_negativt()))
         samling.legg_til_tall("Base 2", Tall(self.konverter_fra_decimaltall(2), 2, self._tall.er_negativt()))
 
-        if base == 2 and self._tall.hent_tall()[0] == 1:
-            print("Tallet kan være både negativt og positivt.")
+        if self._kan_vaere_toer_komplement(self._tall):
+            self._legg_til_samling()
+            samling1 = self._samlinger[1]
+            nyttDecimaltall = self._reverser_toer_komplement(self._tall)
+            nyttTall = Tall(nyttDecimaltall, 10, True)
+            samling1.legg_til_tall("Base 10", nyttTall)
 
-    def _kan_vaere_toerkomplement(self):
-        pass
+    def _reverser_toer_komplement(self, tall):
+        nyttTall = Tall(self.toer_komplement(tall.hent_tall()), tall.hent_base(), True)
+        nyttDecimaltall = self.konverter_til_decimaltall(nyttTall)
+        return nyttDecimaltall
 
-    def _konverter_tall(self, samling):
+
+    def _legg_til_samling(self):
+        self._samlinger.append(Samling())
+
+    def _kan_vaere_toer_komplement(self, tall):
+        # Sjekker om tallet har base 2, antall siffer delelig med 8 og begynner på tallet 1
+        if tall.hent_base() == 2:
+            if len(tall.hent_tall()) % 8 == 0:
+                if tall.hent_tall()[0] == "1":
+                    return True
+        return False
+
+    def _konverter_tall(self):
+        # Ta oss av brukerinput
         base = ""
         baseGyldig = False
         while not baseGyldig:
@@ -73,7 +91,17 @@ class Kalkulator:
             else:
                 print("Ugyldig input")
         base = int(base)
-        samling.legg_til_tall(f"Base {base}", Tall(self.konverter_fra_decimaltall(base), base, self._tall.er_negativt()))
+
+        # Bruke inputen til å konvertere og legge til tall i begge samlingene, om begge finnes
+        # Kan faktoriseres
+        if len(self._samlinger) > 1:
+            samling = self._samlinger[1]
+            decimaltall = samling.hent_tall("Base 10")
+            samling.legg_til_tall(f"Base {base}", Tall(self.konverter_fra_decimaltall(base, decimaltall), base, decimaltall.er_negativt()))
+
+        samling = self._samlinger[0]
+        decimaltall = samling.hent_tall("Base 10")
+        samling.legg_til_tall(f"Base {base}", Tall(self.konverter_fra_decimaltall(base), base, decimaltall.er_negativt()))
 
     def _tom_kalkulator(self):
         self._samlinger = [Samling()]
@@ -83,6 +111,7 @@ class Kalkulator:
         self._andreBaser = []
 
     def intro(self):
+        print()
         print("Denne kalkulatoren er laget for:")
         print("- Å konvertere et tall fra en base til en annen")
         print("- Å finne binærrepresentasjonen av et tall")
@@ -91,21 +120,30 @@ class Kalkulator:
         print()
 
     def print_info(self):
-        if len(self._samlinger) == 1:
-            streng = f"Tall: {self._tall}\n"
-            streng += f"Base: {self._tall.hent_base()}\n"
-            streng += "\n"
-        else:
-            print("Denne funksjonen i kalkulator.print_info() har ikke blitt implementert.")
+        streng = "******************************************\n"
+        streng += f"Tall: {self._tall}\n"
+        streng += f"Base: {self._tall.hent_base()}\n"
+        streng += "\n"
 
         # Print alle basene i tillegg til den som ble skrevet inn
-        nokler = self._samlinger[0].hent_alle_nokler()
-        tall = self._samlinger[0].hent_alle_tall()
-        for nokkel in nokler:
-            streng += f"{nokkel}: {self._samlinger[0].hent_tall(nokkel)}\n"
-        streng += "Info ferdig\n"
+        if len(self._samlinger) == 1:
+            streng += self._hent_samling_innhold(self._samlinger[0])
+        else:
+            streng += "Dette tallet kan ha både positiv og negativ verdi.\n\n"
+            streng += "Positive verdier:\n"
+            streng += self._hent_samling_innhold(self._samlinger[0])
+            streng += "\n"
+            streng += "Negative verdier:\n"
+            streng += self._hent_samling_innhold(self._samlinger[1])
 
+        streng += "******************************************\n"
         print(streng)
+
+    def _hent_samling_innhold(self, samling):
+        streng = ""
+        for nokkel in samling.hent_alle_nokler():
+            streng += f"{nokkel}: {samling.hent_tall(nokkel)}\n"
+        return streng
 
     def nytt_tall(self):
         print("Skriv inn nytt tall")
@@ -136,9 +174,12 @@ class Kalkulator:
     def hent_tall(self):
         return self._tall
 
-    def konverter_til_decimaltall(self):
-        verdier = self._tall.hent_verdier()
-        base = self._tall.hent_base()
+    def konverter_til_decimaltall(self, tall=None):
+        if tall == None:
+            tall = self._tall
+
+        verdier = tall.hent_verdier()
+        base = tall.hent_base()
         total = 0
         potens = len(verdier) - 1
         for verdi in verdier:
@@ -146,8 +187,10 @@ class Kalkulator:
             potens -= 1
         return str(total)
 
-    def konverter_fra_decimaltall(self, tilBase):
-        tall = self._samlinger[0].hent_tall("Base 10")
+    def konverter_fra_decimaltall(self, tilBase, tall=None):
+        if tall == None:
+            tall = self._samlinger[0].hent_tall("Base 10")
+
         verdi = int(tall.hent_tall())
         konvertert = []
         i = 1

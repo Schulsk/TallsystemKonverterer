@@ -24,13 +24,6 @@ class Tall:
         if self._tall[0] == "-":
             self._tall = self._tall.strip("-")
             return True
-        elif len(self._tall) % 8 == 0:
-            print("Tallet har 8 siffer")
-            print(len(self._tall))
-            if self._base == 2:
-                if self._tall[0] == "1":
-                    print("Tallet kan være både positivt og negativt.")
-
         return False
 
     def er_negativt(self):
